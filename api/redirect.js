@@ -24,24 +24,44 @@ async function getGeo(ip) {
 }
 
 module.exports = async (req, res) => {
-  const { c: shortCode } = req.query;
-  if (!shortCode) return res.status(400).json({ error: 'Missing code' });
-  const { data: urlData } = await supabase.from('urls').select('*').eq('short_code', shortCode).single();
-  if (!urlData) return res.status(404).json({ error: 'URL not found' });
-  // Get IP
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress || '';
-  const geo = await getGeo(ip);
-  // Log click
-  await supabase.from('url_clicks').insert({
-    url_id: urlData.id,
-    ip_address: ip,
-    city: geo.city,
-    country: geo.country,
-    latitude: geo.latitude,
-    longitude: geo.longitude,
-    user_agent: req.headers['user-agent']
-  });
-  // Redirect
-  res.writeHead(302, { Location: urlData.original_url });
-  res.end();
+  try {
+    const { c: shortCode } = req.query;
+    if (!shortCode) return res.status(400).json({ error: 'Missing code' });
+
+    const { data: urlData, error: urlError } = await supabase
+      .from('urls')
+      .select('*')
+      .eq('short_code', shortCode)
+      .single();
+
+    if (urlError) throw urlError;
+    if (!urlData) return res.status(404).json({ error: 'URL not found' });
+
+    // Get IP and geolocation
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress || '';
+    const geo = await getGeo(ip);
+
+    // Log click
+    const { error: clickError } = await supabase.from('url_clicks').insert({
+      url_id: urlData.id,
+      ip_address: ip,
+      city: geo.city,
+      country: geo.country,
+      latitude: geo.latitude,
+      longitude: geo.longitude,
+      user_agent: req.headers['user-agent']
+    });
+
+    if (clickError) {
+      console.error('Error logging click:', clickError);
+      // Continue with redirect even if click logging fails
+    }
+
+    // Redirect
+    res.writeHead(302, { Location: urlData.original_url });
+    res.end();
+  } catch (error) {
+    console.error('Redirect error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };

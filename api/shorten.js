@@ -12,21 +12,58 @@ function generateShortCode(length = 6) {
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'Missing url' });
-  let shortCode = generateShortCode();
-  // Ensure unique short code
-  let exists = true;
-  while (exists) {
-    const { data } = await supabase.from('urls').select('id').eq('short_code', shortCode).single();
-    if (!data) exists = false;
-    else shortCode = generateShortCode();
+  try {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'Missing url' });
+
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch (e) {
+      return res.status(400).json({ error: 'Invalid URL format' });
+    }
+
+    let shortCode = generateShortCode();
+    let exists = true;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    // Ensure unique short code
+    while (exists && attempts < maxAttempts) {
+      const { data, error } = await supabase
+        .from('urls')
+        .select('id')
+        .eq('short_code', shortCode)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      if (!data) exists = false;
+      else {
+        shortCode = generateShortCode();
+        attempts++;
+      }
+    }
+
+    if (attempts >= maxAttempts) {
+      throw new Error('Failed to generate unique short code');
+    }
+
+    const { data, error } = await supabase
+      .from('urls')
+      .insert({ original_url: url, short_code: shortCode })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Return the full short URL
+    const host = req.headers['origin'] || req.headers['host'] || '';
+    const shortUrl = `${host.replace(/\/$/, '')}/api/redirect?c=${shortCode}`;
+    res.status(200).json({ shortUrl, shortCode });
+  } catch (error) {
+    console.error('Shorten error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  const { data, error } = await supabase.from('urls').insert({ original_url: url, short_code: shortCode }).select().single();
-  if (error) return res.status(500).json({ error: error.message });
-  // Return the full short URL
-  const host = req.headers['origin'] || req.headers['host'] || '';
-  const shortUrl = `${host.replace(/\/$/, '')}/api/redirect?c=${shortCode}`;
-  res.status(200).json({ shortUrl, shortCode });
 };

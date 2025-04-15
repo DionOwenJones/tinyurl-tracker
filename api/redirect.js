@@ -66,9 +66,15 @@ module.exports = async (req, res) => {
       // Continue with redirect even if logging fails
     }
 
-    // Redirect to original URL
-    res.setHeader('Location', urlData.original_url);
-    return res.status(307).end();
+    // Make sure URL starts with http:// or https://
+    let redirectUrl = urlData.original_url;
+    if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
+      redirectUrl = 'https://' + redirectUrl;
+    }
+
+    // Redirect to original URL using 302 (temporary redirect)
+    res.setHeader('Location', redirectUrl);
+    return res.status(302).end();
 
   } catch (error) {
     logger.error('Redirect error', JSON.stringify(error));

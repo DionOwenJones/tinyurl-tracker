@@ -192,9 +192,8 @@ function updateAnalytics(clicks) {
 }
 
 // Global variables for map state
-let map = null;
 let heatmap = null;
-let markers = [];
+markers = [];
 
 // Initialize map when Google Maps loads
 function initMap() {

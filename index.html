@@ -3,28 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TinyURL Tracker</title>
+  <title>TinyURL Tracker - Share Links, See the World</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>TinyURL Tracker</h1>
-    <p class="disclaimer">By clicking the short link, your general location will be tracked for analytics purposes.</p>
-    <form id="shorten-form">
-      <input type="url" id="url-input" placeholder="Paste your URL here..." required />
-      <button type="submit">Shorten URL</button>
-    </form>
-    <div id="result" class="hidden">
-      <p>Your shortened link:</p>
-      <a id="short-url" href="#" target="_blank"></a>
+  <div class="hero">
+    <div class="hero-bg">
+      <img src="https://images.pexels.com/photos/2387793/pexels-photo-2387793.jpeg" alt="Abstract background" class="hero-img">
+      <div class="overlay"></div>
     </div>
-    <div id="analytics" class="hidden">
-      <h2>Analytics</h2>
-      <p id="click-count">Total Clicks: 0</p>
-      <div id="map" style="height: 300px;"></div>
-    </div>
+    <main class="container">
+      <header class="header">
+        <h1>TinyURL <span class="accent">Tracker</span></h1>
+        <p class="tagline">Share links. See the world.</p>
+        <p class="subtitle">Create short links and watch in real-time as they spread across the globe.</p>
+      </header>
+
+      <section class="how-it-works">
+        <div class="steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <p>Paste your long URL below</p>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <p>Share your short link</p>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <p>Watch clicks appear on the map</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="url-actions">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="shorten">Shorten URL</button>
+          <button class="tab-btn" data-tab="track">Track URL</button>
+        </div>
+
+        <div class="tab-content" id="shorten-tab">
+          <form id="shorten-form">
+            <div class="input-group">
+              <input type="url" id="url-input" placeholder="Paste your long URL to shorten it..." required />
+              <button type="submit">Shorten URL</button>
+            </div>
+          </form>
+          <p class="disclaimer">By using this service, you agree that click locations will be tracked for analytics.</p>
+        </div>
+
+        <div class="tab-content hidden" id="track-tab">
+          <form id="track-form">
+            <div class="input-group">
+              <input type="url" id="track-input" placeholder="Paste your TinyURL to see its analytics..." required />
+              <button type="submit">View Analytics</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="result" class="result hidden">
+        <h2>Your Shortened Link</h2>
+        <div class="short-url-container">
+          <a id="short-url" href="#" target="_blank"></a>
+          <button id="copy-btn" class="copy-button">Copy Link</button>
+        </div>
+      </section>
+
+      <section id="analytics" class="analytics hidden">
+        <h2>Click Hotspots</h2>
+        <div class="analytics-container">
+          <p id="click-count" class="click-count">Total Clicks: 0</p>
+          <div id="map" class="map"></div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>Made with ❤️ for tracking with privacy in mind. Image via <a href="https://www.pexels.com" target="_blank" rel="noopener">Pexels</a>.</p>
+      </footer>
+    </main>
   </div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

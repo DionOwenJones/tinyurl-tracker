@@ -7,7 +7,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 
 async function getGeo(ip) {
   try {
-    const res = await fetch(`https://ipinfo.io/${ip}?token=YOUR_TOKEN_HERE`); // Use free token or remove for limited quota
+    const res = await fetch(`https://ipinfo.io/${ip}?token=${process.env.IPINFO_TOKEN}`);
     if (!res.ok) return {};
     const data = await res.json();
     if (!data.loc) return {};

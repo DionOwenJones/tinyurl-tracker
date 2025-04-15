@@ -2,9 +2,18 @@
 // Shorten a URL and store in Supabase
 const { createClient } = require('@supabase/supabase-js');
 
+// Log environment variables (redacted)
+console.log('Environment check:', {
+  SUPABASE_URL: process.env.SUPABASE_URL ? '✓ set' : '✗ missing',
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ? '✓ set' : '✗ missing'
+});
+
 // Check required environment variables
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  throw new Error('Missing required environment variables: SUPABASE_URL and SUPABASE_ANON_KEY must be set');
+  const missing = [];
+  if (!process.env.SUPABASE_URL) missing.push('SUPABASE_URL');
+  if (!process.env.SUPABASE_ANON_KEY) missing.push('SUPABASE_ANON_KEY');
+  throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
 }
 
 let supabase;
@@ -126,7 +135,29 @@ module.exports = async (req, res) => {
     const shortUrl = `${host.replace(/\/$/, '')}/api/redirect?c=${shortCode}`;
     return res.status(200).json({ shortUrl, shortCode });
   } catch (error) {
-    console.error('Shorten error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Shorten error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+
+    // Check for specific error types
+    if (error.message.includes('Missing required environment variables')) {
+      return res.status(500).json({
+        error: 'Configuration error: Missing environment variables. Please check server configuration.'
+      });
+    }
+
+    if (error.message.includes('Failed to initialize Supabase')) {
+      return res.status(500).json({
+        error: 'Database connection error. Please try again later.'
+      });
+    }
+
+    return res.status(500).json({
+      error: 'Internal server error. Please try again later.',
+      details: error.message
+    });
   }
 };

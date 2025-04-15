@@ -1,3 +1,31 @@
+// Initialize map function - must be defined before Google Maps loads
+window.initMap = function() {
+  window.map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 2,
+    center: { lat: 20, lng: 0 },
+    styles: [
+      { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+      {
+        featureType: 'water',
+        elementType: 'geometry',
+        stylers: [{ color: '#17263c' }]
+      },
+      {
+        featureType: 'water',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#515c6d' }]
+      },
+      {
+        featureType: 'water',
+        elementType: 'labels.text.stroke',
+        stylers: [{ color: '#17263c' }]
+      }
+    ]
+  });
+};
+
 // --- CONFIG ---
 const API_BASE = "/api";
 
@@ -195,36 +223,7 @@ function updateAnalytics(clicks) {
 let heatmap = null;
 markers = [];
 
-// Initialize map when Google Maps loads
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 2,
-    center: { lat: 20, lng: 0 },
-    styles: [
-      { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-      { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-      { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-      {
-        featureType: 'water',
-        elementType: 'geometry',
-        stylers: [{ color: '#17263c' }]
-      },
-      {
-        featureType: 'water',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#515c6d' }]
-      },
-      {
-        featureType: 'water',
-        elementType: 'labels.text.stroke',
-        stylers: [{ color: '#17263c' }]
-      }
-    ]
-  });
-}
 
-// Make initMap global for Google Maps callback
-window.initMap = initMap;
 
 function showMap(clicks) {
   // Clear existing markers

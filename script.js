@@ -191,123 +191,121 @@ function updateAnalytics(clicks) {
   }, {});
 }
 
-// Initialize Mapbox with your access token
-mapboxgl.accessToken = 'pk.eyJ1IjoiZGlvbm93ZW5qb25lcyIsImEiOiJjbG9iZmV4ZHAwMDJqMmtvOWxjbmJxcnB4In0.xtUHvlLHXQwGO0GWYFyAEw';
+let map = null;
+let heatmap = null;
+let markers = [];
 
 function showMap(clicks) {
-  // Clear existing map if it exists
-  if (map) {
-    map.remove();
-    map = null;
+  // Clear existing markers
+  markers.forEach(marker => marker.setMap(null));
+  markers = [];
+  
+  // Clear existing heatmap
+  if (heatmap) {
+    heatmap.setMap(null);
+    heatmap = null;
   }
 
-  // Create new map
-  map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/dark-v10',
-    center: [0, 20],
-    zoom: 1.5
-  });
+  // Filter valid clicks with coordinates
+  const validClicks = clicks.filter(click => click.latitude && click.longitude);
 
-  // Add navigation controls
-  map.addControl(new mapboxgl.NavigationControl());
-
-  // Wait for map to load before adding data
-  map.on('load', () => {
-    // Add a data source for clicks
-    const geojson = {
-      type: 'FeatureCollection',
-      features: clicks.filter(click => click.latitude && click.longitude).map(click => ({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [click.longitude, click.latitude]
+  // Create map if it doesn't exist
+  if (!map) {
+    map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 2,
+      center: { lat: 20, lng: 0 },
+      styles: [
+        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+        {
+          featureType: 'water',
+          elementType: 'geometry',
+          stylers: [{ color: '#17263c' }]
         },
-        properties: {
-          city: click.city || 'Unknown City',
-          country: click.country || 'Unknown Country',
-          date: new Date(click.clicked_at).toLocaleString()
+        {
+          featureType: 'water',
+          elementType: 'labels.text.fill',
+          stylers: [{ color: '#515c6d' }]
+        },
+        {
+          featureType: 'water',
+          elementType: 'labels.text.stroke',
+          stylers: [{ color: '#17263c' }]
         }
-      }))
-    };
-
-    // Add the data source
-    map.addSource('clicks', {
-      type: 'geojson',
-      data: geojson
+      ]
     });
+  }
 
-    // Add a heatmap layer
-    map.addLayer({
-      id: 'clicks-heat',
-      type: 'heatmap',
-      source: 'clicks',
-      maxzoom: 15,
-      paint: {
-        'heatmap-weight': 1,
-        'heatmap-intensity': 1,
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(33,102,172,0)',
-          0.2, 'rgb(103,169,207)',
-          0.4, 'rgb(209,229,240)',
-          0.6, 'rgb(253,219,199)',
-          0.8, 'rgb(239,138,98)',
-          1, 'rgb(178,24,43)'
-        ],
-        'heatmap-radius': 20,
-        'heatmap-opacity': 0.8
-      }
-    });
+  // Create heatmap layer
+  const heatmapData = validClicks.map(click => ({
+    location: new google.maps.LatLng(click.latitude, click.longitude),
+    weight: 1
+  }));
 
-    // Add a symbol layer for points
-    map.addLayer({
-      id: 'clicks-point',
-      type: 'circle',
-      source: 'clicks',
-      minzoom: 7,
-      paint: {
-        'circle-radius': 6,
-        'circle-color': '#ff4081',
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff'
-      }
-    });
-
-    // Add popups
-    map.on('click', 'clicks-point', (e) => {
-      const coordinates = e.features[0].geometry.coordinates.slice();
-      const { city, country, date } = e.features[0].properties;
-
-      new mapboxgl.Popup()
-        .setLngLat(coordinates)
-        .setHTML(`
-          <strong>${city}, ${country}</strong><br>
-          ${date}
-        `)
-        .addTo(map);
-    });
-
-    // Change cursor on hover
-    map.on('mouseenter', 'clicks-point', () => {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-
-    map.on('mouseleave', 'clicks-point', () => {
-      map.getCanvas().style.cursor = '';
-    });
-
-    // Fit map to data
-    if (geojson.features.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      geojson.features.forEach(feature => {
-        bounds.extend(feature.geometry.coordinates);
-      });
-      map.fitBounds(bounds, { padding: 50 });
-    }
+  heatmap = new google.maps.visualization.HeatmapLayer({
+    data: heatmapData,
+    map: map,
+    radius: 20,
+    opacity: 0.8,
+    gradient: [
+      'rgba(0, 0, 0, 0)',
+      'rgba(0, 255, 255, 1)',
+      'rgba(0, 191, 255, 1)',
+      'rgba(0, 127, 255, 1)',
+      'rgba(0, 63, 255, 1)',
+      'rgba(0, 0, 255, 1)',
+      'rgba(0, 0, 223, 1)',
+      'rgba(0, 0, 191, 1)',
+      'rgba(0, 0, 159, 1)',
+      'rgba(0, 0, 127, 1)',
+      'rgba(63, 0, 91, 1)',
+      'rgba(127, 0, 63, 1)',
+      'rgba(191, 0, 31, 1)',
+      'rgba(255, 0, 0, 1)'
+    ]
   });
+
+  // Add markers with info windows
+  validClicks.forEach(click => {
+    const marker = new google.maps.Marker({
+      position: { lat: click.latitude, lng: click.longitude },
+      map: map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: '#ff4081',
+        fillOpacity: 0.9,
+        strokeWeight: 2,
+        strokeColor: '#ffffff'
+      },
+      title: `${click.city || 'Unknown City'}, ${click.country || 'Unknown Country'}`
+    });
+
+    const infowindow = new google.maps.InfoWindow({
+      content: `
+        <div class="popup-content">
+          <strong>${click.city || 'Unknown City'}, ${click.country || 'Unknown Country'}</strong><br>
+          <small>${new Date(click.clicked_at).toLocaleString()}</small>
+        </div>
+      `
+    });
+
+    marker.addListener('click', () => {
+      infowindow.open(map, marker);
+    });
+
+    markers.push(marker);
+  });
+
+  // Fit bounds if we have markers
+  if (validClicks.length > 0) {
+    const bounds = new google.maps.LatLngBounds();
+    validClicks.forEach(click => {
+      bounds.extend({ lat: click.latitude, lng: click.longitude });
+    });
+    map.fitBounds(bounds);
+  }
 }
 
 // --- Helper Functions ---

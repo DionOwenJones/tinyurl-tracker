@@ -200,17 +200,16 @@ function showMap(clicks) {
   }
 
   // Create new map
-    map = L.map(mapDiv, {
-      scrollWheelZoom: false,
-      zoomControl: true,
-      dragging: !L.Browser.mobile
-    }).setView([20, 0], 2);
+  map = L.map(mapDiv, {
+    scrollWheelZoom: false,
+    zoomControl: true,
+    dragging: !L.Browser.mobile
+  }).setView([20, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 18
-    }).addTo(map);
-  }
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
 
   // Initialize markers array
   markers = [];

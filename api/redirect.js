@@ -41,8 +41,12 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'URL not found' });
     }
 
-    // Get visitor's IP
+    // Get visitor's geolocation from Vercel headers
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    const latitude = parseFloat(req.headers['x-vercel-ip-latitude']);
+    const longitude = parseFloat(req.headers['x-vercel-ip-longitude']);
+    const city = req.headers['x-vercel-ip-city'];
+    const country = req.headers['x-vercel-ip-country'];
 
     // Log the click
     console.log('Logging click:', {
@@ -58,7 +62,11 @@ module.exports = async (req, res) => {
         short_code: shortCode,
         ip_address: ip,
         user_agent: req.headers['user-agent'],
-        referrer: req.headers['referer'] || null
+        referrer: req.headers['referer'] || null,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        city: city || null,
+        country: country || null
       });
 
     if (clickError) {

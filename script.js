@@ -193,7 +193,13 @@ function updateAnalytics(clicks) {
 
 // --- Map Visualization ---
 function showMap(clicks) {
-  if (!map) {
+  // Clear existing map if it exists
+  if (map) {
+    map.remove();
+    map = null;
+  }
+
+  // Create new map
     map = L.map(mapDiv, {
       scrollWheelZoom: false,
       zoomControl: true,
@@ -206,8 +212,7 @@ function showMap(clicks) {
     }).addTo(map);
   }
 
-  // Clear existing markers
-  markers.forEach(m => map.removeLayer(m));
+  // Initialize markers array
   markers = [];
 
   // Add new markers with custom styling

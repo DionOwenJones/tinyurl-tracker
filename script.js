@@ -163,8 +163,8 @@ async function fetchAnalytics(shortCode) {
       throw new Error(data.error || 'Failed to fetch analytics');
     }
     
-    if (data.analytics) {
-      updateAnalytics(data.analytics);
+    if (data.clicks) {
+      updateAnalytics(data.clicks);
     } else {
       throw new Error('No analytics data available');
     }

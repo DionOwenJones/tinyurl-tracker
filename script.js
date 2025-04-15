@@ -324,7 +324,29 @@ function showMap(clicks) {
     validClicks.forEach(click => {
       bounds.extend({ lat: click.latitude, lng: click.longitude });
     });
-    window.map.fitBounds(bounds);
+
+    // Add padding to the bounds to keep a more zoomed out view
+    const padding = { 
+      north: bounds.getNorthEast().lat() + 10,
+      south: bounds.getSouthWest().lat() - 10,
+      east: bounds.getNorthEast().lng() + 20,
+      west: bounds.getSouthWest().lng() - 20
+    };
+    
+    const paddedBounds = new google.maps.LatLngBounds(
+      new google.maps.LatLng(padding.south, padding.west),
+      new google.maps.LatLng(padding.north, padding.east)
+    );
+
+    window.map.fitBounds(paddedBounds);
+    
+    // Set a maximum zoom level
+    const listener = google.maps.event.addListener(window.map, 'idle', function() {
+      if (window.map.getZoom() > 5) {
+        window.map.setZoom(5);
+      }
+      google.maps.event.removeListener(listener);
+    });
   }
 }
 

@@ -2,7 +2,18 @@
 // Shorten a URL and store in Supabase
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+// Check required environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  throw new Error('Missing required environment variables: SUPABASE_URL and SUPABASE_ANON_KEY must be set');
+}
+
+let supabase;
+try {
+  supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error);
+  throw error;
+}
 
 function generateShortCode(length = 6) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -12,10 +23,20 @@ function generateShortCode(length = 6) {
 }
 
 module.exports = async (req, res) => {
-  // Set JSON content type
+  // Set JSON content type and CORS headers
   res.setHeader('Content-Type', 'application/json');
-  
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS request for CORS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Log request
+  console.log('Request method:', req.method);
+  console.log('Request headers:', req.headers);
   console.log('Request body:', req.body);
   try {
     // Check method
@@ -23,8 +44,19 @@ module.exports = async (req, res) => {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // Parse request body if needed
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        console.error('Failed to parse request body:', e);
+        return res.status(400).json({ error: 'Invalid JSON in request body' });
+      }
+    }
+
     // Validate request body
-    if (!req.body || typeof req.body !== 'object') {
+    if (!body || typeof body !== 'object') {
       return res.status(400).json({ error: 'Invalid request body' });
     }
 

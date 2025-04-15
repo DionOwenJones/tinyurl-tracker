@@ -55,7 +55,12 @@ shortenForm.addEventListener('submit', async (e) => {
     console.log('Shortening URL:', originalUrl);
     const res = await fetch(`${API_BASE}/shorten`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'cors',
+      credentials: 'omit',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({ url: originalUrl })
     });
 

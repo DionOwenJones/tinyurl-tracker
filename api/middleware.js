@@ -13,8 +13,10 @@ const errorHandler = (fn) => async (req, res) => {
       error: {
         name: error.name,
         message: error.message,
-        stack: error.stack,
-        code: error.code
+        stack: error.stack?.split('\n'),
+        code: error.code,
+        details: error.details,
+        supabaseError: error.error // Supabase specific error details
       }
     };
 
@@ -26,7 +28,8 @@ const errorHandler = (fn) => async (req, res) => {
       error: {
         message: error.message,
         type: error.name,
-        code: error.code || 500
+        code: error.code || 500,
+        details: error.details || error.error // Include Supabase error details
       }
     });
   }

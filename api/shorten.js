@@ -90,22 +90,8 @@ const handler = async (req, res) => {
     return res.status(200).json({ shortUrl, shortCode });
 
   } catch (error) {
-    // Log the full error details
-    const errorDetails = {
-      message: error.message,
-      name: error.name,
-      code: error.code,
-      stack: error.stack?.split('\n'),
-      details: error.details,
-      supabaseError: error.error // Supabase specific error details
-    };
-    
-    console.error('Detailed error:', JSON.stringify(errorDetails, null, 2));
-
-    return res.status(500).json({
-      error: 'Server error',
-      details: errorDetails
-    });
+    // Let the error handler middleware handle it
+    throw error;
   }
 };
 

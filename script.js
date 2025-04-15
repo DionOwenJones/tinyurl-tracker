@@ -80,7 +80,6 @@ shortenForm.addEventListener('submit', async (e) => {
   analyticsDiv.classList.add('hidden');
 
   try {
-    console.log('Shortening URL:', originalUrl);
     const res = await fetch(`${API_BASE}/shorten`, {
       method: 'POST',
       mode: 'cors',
@@ -95,15 +94,12 @@ shortenForm.addEventListener('submit', async (e) => {
     let data;
     try {
       const text = await res.text();
-      console.log('Raw response:', text);
       data = JSON.parse(text);
     } catch (e) {
-      console.error('Failed to parse response:', e);
       throw new Error('Server returned invalid JSON');
     }
 
     if (!res.ok) {
-      console.error('Server error:', data);
       const errorMessage = data.details?.message || data.error?.message || data.message || 'An unknown error occurred';
       showError(`Error: ${errorMessage}`);
     }
@@ -115,7 +111,6 @@ shortenForm.addEventListener('submit', async (e) => {
       urlInput.value = ''; // Clear input
       fetchAnalytics(data.shortCode);
     } else {
-      console.error('Invalid response:', data);
       throw new Error('Invalid response from server');
     }
   } catch (error) {
@@ -177,17 +172,15 @@ copyBtn.addEventListener('click', async () => {
       copyBtn.style.background = '';
     }, 2000);
   } catch (err) {
-    console.error('Failed to copy:', err);
+    // Silently handle copy error
   }
 });
 
 // --- Analytics ---
 async function fetchAnalytics(shortCode) {
   try {
-    console.log('Fetching analytics for shortCode:', shortCode);
     const res = await fetch(`${API_BASE}/analytics?shortCode=${encodeURIComponent(shortCode)}`);
     const data = await res.json();
-    console.log('Received analytics data:', data);
     
     if (!res.ok) {
       throw new Error(data.error || 'Failed to fetch analytics');
@@ -199,7 +192,6 @@ async function fetchAnalytics(shortCode) {
       throw new Error('No analytics data available');
     }
   } catch (error) {
-    console.error('Analytics error:', error);
     clickCountP.textContent = 'No clicks yet';
   }
   analyticsDiv.classList.remove('hidden');
@@ -228,8 +220,6 @@ markers = [];
 
 
 function showMap(clicks) {
-  console.log('Showing map with clicks:', clicks);
-
   // Clear existing markers
   if (markers) {
     markers.forEach(marker => marker.setMap(null));
@@ -243,11 +233,8 @@ function showMap(clicks) {
 
   // Filter valid clicks with coordinates
   const validClicks = clicks.filter(click => click.latitude && click.longitude);
-  console.log('Valid clicks with coordinates:', validClicks);
-
   // Wait for map to be initialized
   if (!window.map) {
-    console.log('Map not initialized yet');
     return;
   }
 

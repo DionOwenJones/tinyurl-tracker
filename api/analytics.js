@@ -36,10 +36,27 @@ module.exports = async (req, res) => {
 
     // Get clicks data
     logger.info('Fetching clicks', JSON.stringify({ shortCode }));
+    
+    // First check if the URL exists
+    const { data: urlData, error: urlError } = await supabase
+      .from('urls')
+      .select('short_code')
+      .eq('short_code', shortCode)
+      .single();
+
+    if (urlError || !urlData) {
+      console.log('URL not found:', { shortCode, urlError });
+      return res.status(404).json({ error: 'URL not found' });
+    }
+
+    // Then get clicks
     const { data, error } = await supabase
       .from('clicks')
       .select('*')
-      .eq('short_code', shortCode);
+      .eq('short_code', shortCode)
+      .order('clicked_at', { ascending: false });
+
+    console.log('Found clicks:', { shortCode, clickCount: data?.length, error });
 
     if (error) {
       logger.error('Supabase error', JSON.stringify(error));

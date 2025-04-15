@@ -47,27 +47,33 @@ module.exports = async (req, res) => {
     const longitude = parseFloat(req.headers['x-vercel-ip-longitude']);
     const city = req.headers['x-vercel-ip-city'];
     const country = req.headers['x-vercel-ip-country'];
+    
+    console.log('Headers:', req.headers);
+    console.log('Geolocation data:', { latitude, longitude, city, country });
 
     // Log the click
-    console.log('Logging click:', {
+    const clickData = {
       short_code: shortCode,
       ip_address: ip,
       user_agent: req.headers['user-agent'],
-      referrer: req.headers['referer'] || null
-    });
+      referrer: req.headers['referer'] || null,
+      latitude: latitude || null,
+      longitude: longitude || null,
+      city: city || null,
+      country: country || null,
+      clicked_at: new Date().toISOString()
+    };
 
-    const { error: clickError } = await supabase
+    console.log('Inserting click data:', clickData);
+
+    const { data: insertedClick, error: clickError } = await supabase
       .from('clicks')
-      .insert({
-        short_code: shortCode,
-        ip_address: ip,
-        user_agent: req.headers['user-agent'],
-        referrer: req.headers['referer'] || null,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        city: city || null,
-        country: country || null
-      });
+      .insert(clickData)
+      .select();
+
+    if (insertedClick) {
+      console.log('Successfully inserted click:', insertedClick);
+    }
 
     if (clickError) {
       logger.error('Error logging click', JSON.stringify(clickError));

@@ -1,13 +1,16 @@
 // /api/redirect.js
 // Redirect to original URL and track click
 const { createClient } = require('@supabase/supabase-js');
+const logger = require('./utils/logger');
 
 module.exports = async (req, res) => {
-  console.log('Redirect request:', {
-    query: req.query,
-    headers: req.headers,
-    url: req.url
-  });
+  logger.info('Redirect request received', JSON.stringify({
+    shortCode: req.query.c,
+    ip: req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress,
+    userAgent: req.headers['user-agent'],
+    referrer: req.headers['referer']
+  }));
+
   try {
     const { c: shortCode } = req.query;
 
@@ -30,7 +33,7 @@ module.exports = async (req, res) => {
       .single();
 
     if (urlError) {
-      console.error('URL lookup error:', urlError);
+      logger.error('URL lookup error', JSON.stringify(urlError));
       return res.status(500).json({ error: urlError.message });
     }
 
@@ -59,7 +62,7 @@ module.exports = async (req, res) => {
       });
 
     if (clickError) {
-      console.error('Error logging click:', clickError);
+      logger.error('Error logging click', JSON.stringify(clickError));
       // Continue with redirect even if logging fails
     }
 
@@ -68,7 +71,7 @@ module.exports = async (req, res) => {
     return res.status(307).end();
 
   } catch (error) {
-    console.error('Redirect error:', error);
+    logger.error('Redirect error', JSON.stringify(error));
     return res.status(500).json({ error: error.message });
   }
 };

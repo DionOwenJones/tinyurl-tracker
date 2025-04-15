@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TinyURL Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>TinyURL Tracker</h1>
+    <p class="disclaimer">By clicking the short link, your general location will be tracked for analytics purposes.</p>
+    <form id="shorten-form">
+      <input type="url" id="url-input" placeholder="Paste your URL here..." required />
+      <button type="submit">Shorten URL</button>
+    </form>
+    <div id="result" class="hidden">
+      <p>Your shortened link:</p>
+      <a id="short-url" href="#" target="_blank"></a>
+    </div>
+    <div id="analytics" class="hidden">
+      <h2>Analytics</h2>
+      <p id="click-count">Total Clicks: 0</p>
+      <div id="map" style="height: 300px;"></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

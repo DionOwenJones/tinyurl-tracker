@@ -231,13 +231,14 @@ function showMap(clicks) {
   console.log('Showing map with clicks:', clicks);
 
   // Clear existing markers
-  markers.forEach(marker => marker.setMap(null));
+  if (markers) {
+    markers.forEach(marker => marker.setMap(null));
+  }
   markers = [];
   
   // Clear existing heatmap
   if (heatmap) {
     heatmap.setMap(null);
-    heatmap = null;
   }
 
   // Filter valid clicks with coordinates
@@ -245,22 +246,24 @@ function showMap(clicks) {
   console.log('Valid clicks with coordinates:', validClicks);
 
   // Wait for map to be initialized
-  if (!map) {
+  if (!window.map) {
     console.log('Map not initialized yet');
     return;
   }
 
   // Create heatmap layer
-  const heatmapData = validClicks.map(click => ({
-    location: new google.maps.LatLng(click.latitude, click.longitude),
-    weight: 1
-  }));
+  const heatmapData = validClicks.map(click => {
+    return {
+      location: new google.maps.LatLng(click.latitude, click.longitude),
+      weight: 1
+    };
+  });
 
   heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData,
-    map: map,
-    radius: 20,
-    opacity: 0.8,
+    map: window.map,
+    radius: 30,
+    opacity: 0.7,
     gradient: [
       'rgba(0, 0, 0, 0)',
       'rgba(0, 255, 255, 1)',
@@ -278,12 +281,16 @@ function showMap(clicks) {
       'rgba(255, 0, 0, 1)'
     ]
   });
+  
+  // Force the heatmap to redraw
+  heatmap.setMap(null);
+  heatmap.setMap(window.map);
 
   // Add markers with info windows
   validClicks.forEach(click => {
     const marker = new google.maps.Marker({
       position: { lat: click.latitude, lng: click.longitude },
-      map: map,
+      map: window.map,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 8,
@@ -305,7 +312,7 @@ function showMap(clicks) {
     });
 
     marker.addListener('click', () => {
-      infowindow.open(map, marker);
+      infowindow.open(window.map, marker);
     });
 
     markers.push(marker);
@@ -317,7 +324,7 @@ function showMap(clicks) {
     validClicks.forEach(click => {
       bounds.extend({ lat: click.latitude, lng: click.longitude });
     });
-    map.fitBounds(bounds);
+    window.map.fitBounds(bounds);
   }
 }
 

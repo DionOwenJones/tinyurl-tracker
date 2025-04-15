@@ -191,7 +191,9 @@ function updateAnalytics(clicks) {
   }, {});
 }
 
-// --- Map Visualization ---
+// Initialize Mapbox with your access token
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGlvbm93ZW5qb25lcyIsImEiOiJjbG9iZmV4ZHAwMDJqMmtvOWxjbmJxcnB4In0.xtUHvlLHXQwGO0GWYFyAEw';
+
 function showMap(clicks) {
   // Clear existing map if it exists
   if (map) {
@@ -200,48 +202,112 @@ function showMap(clicks) {
   }
 
   // Create new map
-  map = L.map(mapDiv, {
-    scrollWheelZoom: false,
-    zoomControl: true,
-    dragging: !L.Browser.mobile
-  }).setView([20, 0], 2);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 18
-  }).addTo(map);
-
-  // Initialize markers array
-  markers = [];
-
-  // Add new markers with custom styling
-  clicks.forEach(click => {
-    if (click.latitude && click.longitude) {
-      const marker = L.marker([click.latitude, click.longitude], {
-        icon: L.divIcon({
-          className: 'custom-marker',
-          html: '<div class="marker-pulse"></div>',
-          iconSize: [10, 10]
-        })
-      }).addTo(map);
-
-      marker.bindPopup(`
-        <div class="popup-content">
-          <strong>${click.city || 'Unknown City'}</strong><br>
-          ${click.country || 'Unknown Country'}<br>
-          <small>${new Date(click.clicked_at).toLocaleString()}</small>
-        </div>
-      `);
-
-      markers.push(marker);
-    }
+  map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v10',
+    center: [0, 20],
+    zoom: 1.5
   });
 
-  // Fit bounds if we have markers
-  if (markers.length > 0) {
-    const group = new L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
-  }
+  // Add navigation controls
+  map.addControl(new mapboxgl.NavigationControl());
+
+  // Wait for map to load before adding data
+  map.on('load', () => {
+    // Add a data source for clicks
+    const geojson = {
+      type: 'FeatureCollection',
+      features: clicks.filter(click => click.latitude && click.longitude).map(click => ({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [click.longitude, click.latitude]
+        },
+        properties: {
+          city: click.city || 'Unknown City',
+          country: click.country || 'Unknown Country',
+          date: new Date(click.clicked_at).toLocaleString()
+        }
+      }))
+    };
+
+    // Add the data source
+    map.addSource('clicks', {
+      type: 'geojson',
+      data: geojson
+    });
+
+    // Add a heatmap layer
+    map.addLayer({
+      id: 'clicks-heat',
+      type: 'heatmap',
+      source: 'clicks',
+      maxzoom: 15,
+      paint: {
+        'heatmap-weight': 1,
+        'heatmap-intensity': 1,
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(33,102,172,0)',
+          0.2, 'rgb(103,169,207)',
+          0.4, 'rgb(209,229,240)',
+          0.6, 'rgb(253,219,199)',
+          0.8, 'rgb(239,138,98)',
+          1, 'rgb(178,24,43)'
+        ],
+        'heatmap-radius': 20,
+        'heatmap-opacity': 0.8
+      }
+    });
+
+    // Add a symbol layer for points
+    map.addLayer({
+      id: 'clicks-point',
+      type: 'circle',
+      source: 'clicks',
+      minzoom: 7,
+      paint: {
+        'circle-radius': 6,
+        'circle-color': '#ff4081',
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    // Add popups
+    map.on('click', 'clicks-point', (e) => {
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const { city, country, date } = e.features[0].properties;
+
+      new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`
+          <strong>${city}, ${country}</strong><br>
+          ${date}
+        `)
+        .addTo(map);
+    });
+
+    // Change cursor on hover
+    map.on('mouseenter', 'clicks-point', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'clicks-point', () => {
+      map.getCanvas().style.cursor = '';
+    });
+
+    // Fit map to data
+    if (geojson.features.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      geojson.features.forEach(feature => {
+        bounds.extend(feature.geometry.coordinates);
+      });
+      map.fitBounds(bounds, { padding: 50 });
+    }
+  });
 }
 
 // --- Helper Functions ---

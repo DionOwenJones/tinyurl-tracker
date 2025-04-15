@@ -52,15 +52,25 @@ shortenForm.addEventListener('submit', async (e) => {
   analyticsDiv.classList.add('hidden');
 
   try {
+    console.log('Shortening URL:', originalUrl);
     const res = await fetch(`${API_BASE}/shorten`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: originalUrl })
     });
 
-    const data = await res.json();
-    
+    let data;
+    try {
+      const text = await res.text();
+      console.log('Raw response:', text);
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error('Failed to parse response:', e);
+      throw new Error('Server returned invalid JSON');
+    }
+
     if (!res.ok) {
+      console.error('Server error:', data);
       throw new Error(data.error || 'Failed to shorten URL');
     }
 
@@ -71,6 +81,7 @@ shortenForm.addEventListener('submit', async (e) => {
       urlInput.value = ''; // Clear input
       fetchAnalytics(data.shortCode);
     } else {
+      console.error('Invalid response:', data);
       throw new Error('Invalid response from server');
     }
   } catch (error) {

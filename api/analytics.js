@@ -5,6 +5,11 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 module.exports = async (req, res) => {
+  // Set JSON content type
+  res.setHeader('Content-Type', 'application/json');
+  
+  // Log request
+  console.log('Analytics request:', req.query);
   try {
     const { shortCode } = req.query;
     if (!shortCode) return res.status(400).json({ error: 'Missing shortCode' });

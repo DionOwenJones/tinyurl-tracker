@@ -24,6 +24,11 @@ async function getGeo(ip) {
 }
 
 module.exports = async (req, res) => {
+  // Set JSON content type
+  res.setHeader('Content-Type', 'application/json');
+  
+  // Log request
+  console.log('Redirect request:', req.query);
   try {
     const { c: shortCode } = req.query;
     if (!shortCode) return res.status(400).json({ error: 'Missing code' });
@@ -57,7 +62,8 @@ module.exports = async (req, res) => {
       // Continue with redirect even if click logging fails
     }
 
-    // Redirect
+    // For redirect, don't send JSON
+    res.removeHeader('Content-Type');
     res.writeHead(302, { Location: urlData.original_url });
     res.end();
   } catch (error) {

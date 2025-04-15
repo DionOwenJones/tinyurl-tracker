@@ -12,6 +12,11 @@ function generateShortCode(length = 6) {
 }
 
 module.exports = async (req, res) => {
+  // Set JSON content type
+  res.setHeader('Content-Type', 'application/json');
+  
+  // Log request
+  console.log('Request body:', req.body);
   try {
     // Check method
     if (req.method !== 'POST') {

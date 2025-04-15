@@ -13,10 +13,20 @@ function generateShortCode(length = 6) {
 
 module.exports = async (req, res) => {
   try {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    // Check method
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Validate request body
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
 
     const { url } = req.body;
-    if (!url) return res.status(400).json({ error: 'Missing url' });
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: 'Missing or invalid URL' });
+    }
 
     // Validate URL format
     try {
@@ -38,32 +48,48 @@ module.exports = async (req, res) => {
         .eq('short_code', shortCode)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
-      if (!data) exists = false;
-      else {
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No data found, which is what we want
+          exists = false;
+        } else {
+          console.error('Database error:', error);
+          throw error;
+        }
+      } else if (data) {
         shortCode = generateShortCode();
         attempts++;
+      } else {
+        exists = false;
       }
     }
 
     if (attempts >= maxAttempts) {
-      throw new Error('Failed to generate unique short code');
+      return res.status(500).json({ error: 'Failed to generate unique short code' });
     }
 
+    // Insert the new URL
     const { data, error } = await supabase
       .from('urls')
       .insert({ original_url: url, short_code: shortCode })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Insert error:', error);
+      throw error;
+    }
+
+    if (!data) {
+      return res.status(500).json({ error: 'Failed to create short URL' });
+    }
 
     // Return the full short URL
     const host = req.headers['origin'] || req.headers['host'] || '';
     const shortUrl = `${host.replace(/\/$/, '')}/api/redirect?c=${shortCode}`;
-    res.status(200).json({ shortUrl, shortCode });
+    return res.status(200).json({ shortUrl, shortCode });
   } catch (error) {
     console.error('Shorten error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -57,7 +57,12 @@ shortenForm.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: originalUrl })
     });
+
     const data = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to shorten URL');
+    }
 
     if (data.shortUrl) {
       shortUrlA.textContent = data.shortUrl;
@@ -66,7 +71,7 @@ shortenForm.addEventListener('submit', async (e) => {
       urlInput.value = ''; // Clear input
       fetchAnalytics(data.shortCode);
     } else {
-      throw new Error(data.error || 'Failed to shorten URL');
+      throw new Error('Invalid response from server');
     }
   } catch (error) {
     showError(error.message);

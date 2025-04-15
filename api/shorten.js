@@ -39,8 +39,17 @@ const handler = async (req, res) => {
   }
 
   try {
-    // Initialize Supabase first
+    console.log('Request received:', {
+      method: req.method,
+      headers: req.headers,
+      body: req.body,
+      url: req.url
+    });
+
+    // Initialize Supabase
+    console.log('Initializing Supabase...');
     const supabase = initSupabase();
+    console.log('Supabase initialized');
 
     // Basic method check
     if (req.method !== 'POST') {

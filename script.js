@@ -184,8 +184,10 @@ copyBtn.addEventListener('click', async () => {
 // --- Analytics ---
 async function fetchAnalytics(shortCode) {
   try {
+    console.log('Fetching analytics for shortCode:', shortCode);
     const res = await fetch(`${API_BASE}/analytics?shortCode=${encodeURIComponent(shortCode)}`);
     const data = await res.json();
+    console.log('Received analytics data:', data);
     
     if (!res.ok) {
       throw new Error(data.error || 'Failed to fetch analytics');
@@ -226,6 +228,8 @@ markers = [];
 
 
 function showMap(clicks) {
+  console.log('Showing map with clicks:', clicks);
+
   // Clear existing markers
   markers.forEach(marker => marker.setMap(null));
   markers = [];
@@ -238,6 +242,7 @@ function showMap(clicks) {
 
   // Filter valid clicks with coordinates
   const validClicks = clicks.filter(click => click.latitude && click.longitude);
+  console.log('Valid clicks with coordinates:', validClicks);
 
   // Wait for map to be initialized
   if (!map) {

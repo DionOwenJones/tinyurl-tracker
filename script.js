@@ -76,7 +76,8 @@ shortenForm.addEventListener('submit', async (e) => {
 
     if (!res.ok) {
       console.error('Server error:', data);
-      throw new Error(data.error || 'Failed to shorten URL');
+      const errorMessage = data.details?.message || data.error?.message || data.message || 'An unknown error occurred';
+      showError(`Error: ${errorMessage}`);
     }
 
     if (data.shortUrl) {

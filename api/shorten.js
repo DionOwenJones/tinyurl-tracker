@@ -27,6 +27,8 @@ function generateShortCode(length = 6) {
 }
 
 module.exports = async (req, res) => {
+  // Enable more detailed error stack traces
+  Error.stackTraceLimit = 30;
   // Set JSON content type and CORS headers
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -81,15 +83,21 @@ module.exports = async (req, res) => {
     return res.status(200).json({ shortUrl, shortCode });
 
   } catch (error) {
-    console.error('Error:', {
+    // Log the full error details
+    const errorDetails = {
       message: error.message,
+      name: error.name,
       code: error.code,
-      details: error.details
-    });
+      stack: error.stack?.split('\n'),
+      details: error.details,
+      supabaseError: error.error // Supabase specific error details
+    };
+    
+    console.error('Detailed error:', JSON.stringify(errorDetails, null, 2));
 
     return res.status(500).json({
       error: 'Server error',
-      message: error.message
+      details: errorDetails
     });
   }
 };

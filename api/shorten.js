@@ -1,22 +1,20 @@
 // /api/shorten.js
 // Shorten a URL and store in Supabase
 const { createClient } = require('@supabase/supabase-js');
+const { errorHandler } = require('./middleware');
 
 // Initialize Supabase
 const initSupabase = () => {
-  console.log('Initializing Supabase...');
-  console.log('Environment:', {
-    NODE_ENV: process.env.NODE_ENV,
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    HAS_URL: !!process.env.SUPABASE_URL,
-    HAS_KEY: !!process.env.SUPABASE_ANON_KEY
-  });
-
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
     throw new Error('Missing Supabase credentials');
   }
 
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  try {
+    return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  } catch (error) {
+    console.error('Supabase initialization error:', error);
+    throw new Error(`Failed to initialize Supabase: ${error.message}`);
+  }
 };
 
 function generateShortCode(length = 6) {
@@ -26,7 +24,7 @@ function generateShortCode(length = 6) {
   return code;
 }
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   // Enable more detailed error stack traces
   Error.stackTraceLimit = 30;
   // Set JSON content type and CORS headers
@@ -101,3 +99,6 @@ module.exports = async (req, res) => {
     });
   }
 };
+
+// Export handler with error handling middleware
+module.exports = errorHandler(handler);

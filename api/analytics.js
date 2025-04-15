@@ -3,6 +3,11 @@
 const { createClient } = require('@supabase/supabase-js');
 
 module.exports = async (req, res) => {
+  console.log('Analytics request:', {
+    query: req.query,
+    headers: req.headers,
+    url: req.url
+  });
   try {
     // Set JSON content type and CORS headers
     res.setHeader('Content-Type', 'application/json');
@@ -29,6 +34,7 @@ module.exports = async (req, res) => {
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
     // Get clicks data
+    console.log('Fetching clicks for shortCode:', shortCode);
     const { data, error } = await supabase
       .from('clicks')
       .select('*')

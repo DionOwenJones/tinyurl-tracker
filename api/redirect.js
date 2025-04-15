@@ -3,6 +3,11 @@
 const { createClient } = require('@supabase/supabase-js');
 
 module.exports = async (req, res) => {
+  console.log('Redirect request:', {
+    query: req.query,
+    headers: req.headers,
+    url: req.url
+  });
   try {
     const { c: shortCode } = req.query;
 
@@ -37,6 +42,13 @@ module.exports = async (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
 
     // Log the click
+    console.log('Logging click:', {
+      short_code: shortCode,
+      ip_address: ip,
+      user_agent: req.headers['user-agent'],
+      referrer: req.headers['referer'] || null
+    });
+
     const { error: clickError } = await supabase
       .from('clicks')
       .insert({

@@ -25,9 +25,9 @@ async function getGeo(ip) {
 
 module.exports = async (req, res) => {
   const { c: shortCode } = req.query;
-  if (!shortCode) return res.status(400).send('Missing code');
+  if (!shortCode) return res.status(400).json({ error: 'Missing code' });
   const { data: urlData } = await supabase.from('urls').select('*').eq('short_code', shortCode).single();
-  if (!urlData) return res.status(404).send('Not found');
+  if (!urlData) return res.status(404).json({ error: 'URL not found' });
   // Get IP
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress || '';
   const geo = await getGeo(ip);

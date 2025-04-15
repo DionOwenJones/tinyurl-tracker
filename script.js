@@ -83,10 +83,17 @@ trackForm.addEventListener('submit', async (e) => {
   if (!trackUrl) return;
 
   // Extract short code from URL
-  const url = new URL(trackUrl);
-  const shortCode = url.searchParams.get('c');
+  let shortCode;
+  try {
+    const url = new URL(trackUrl);
+    shortCode = url.searchParams.get('c');
+  } catch (e) {
+    showError('Invalid URL format');
+    return;
+  }
+
   if (!shortCode) {
-    showError('Invalid TinyURL format');
+    showError('Invalid TinyURL format. Make sure to use the full shortened URL.');
     return;
   }
 
@@ -129,6 +136,11 @@ async function fetchAnalytics(shortCode) {
   try {
     const res = await fetch(`${API_BASE}/analytics?shortCode=${encodeURIComponent(shortCode)}`);
     const data = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to fetch analytics');
+    }
+    
     if (data.analytics) {
       updateAnalytics(data.analytics);
     } else {

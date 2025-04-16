@@ -1,6 +1,18 @@
+<div align="center">
+
 # TinyTrack 🌍
 
-A modern URL shortener with real-time global click tracking and visualization. Create short links and watch your content spread across the globe in real-time with an interactive heatmap.
+### Modern URL Shortener with Real-Time Analytics
+
+[![Status](https://img.shields.io/badge/status-live-success?style=for-the-badge)](https://tinyurl-tracker.vercel.app/)
+[![Made with Love](https://img.shields.io/badge/made_with-❤️-ff69b4?style=for-the-badge)](https://tinyurl-tracker.vercel.app/)
+[![UI](https://img.shields.io/badge/UI-Modern-8B5CF6?style=for-the-badge)](https://tinyurl-tracker.vercel.app/)
+
+Create short links and watch your content spread across the globe in real-time with an interactive heatmap.
+
+[<img src="https://img.shields.io/badge/Try_Demo-000?style=for-the-badge&logo=vercel&logoColor=white"](https://tinyurl-tracker.vercel.app/)
+
+</div>
 
 **[Try the Live Demo](https://tinyurl-tracker.vercel.app/)**
 
@@ -8,7 +20,15 @@ A modern URL shortener with real-time global click tracking and visualization. C
 
 > 💡 *Screenshot shows the interactive world map and click tracking features*
 
-## Features ✨
+<div align="center">
+
+## ✨ Features
+
+`🔗 URL Shortening` `📊 Real-time Analytics` `🌐 Global Visualization` `🗺️ Click Heatmaps` `🎨 Modern UI`
+
+</div>
+
+---
 
 - **URL Shortening**: Convert long URLs into concise, shareable links
 - **Real-time Analytics**: Track clicks as they happen
@@ -16,14 +36,25 @@ A modern URL shortener with real-time global click tracking and visualization. C
 - **Click Heatmaps**: See where your content is most popular
 - **Modern UI**: Clean, responsive design with smooth animations
 
-## Try It Out 🚀
+<div align="center">
+
+## 🚀 Try It Out
+
+</div>
 
 1. Visit the [Live Demo](https://tinyurl-tracker.vercel.app/)
 2. Paste any long URL
 3. Share your shortened link
 4. Watch as clicks appear on the world map!
 
-## Implementation Guide 🛠️
+<div align="center">
+
+## 🛠️ Implementation Guide
+
+</div>
+
+<details>
+<summary>Click to expand</summary>
 
 Want to build your own URL shortener? Here's what you'll need:
 
@@ -64,12 +95,23 @@ CREATE TABLE clicks (
 );
 ```
 
-This repository contains a working implementation using:
-- Supabase for the backend
-- Google Maps for visualization
-- Vanilla JavaScript for simplicity
+</details>
 
-## FAQ ❓
+<div align="center">
+
+### Tech Stack
+
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?style=for-the-badge&logo=google-maps&logoColor=white)](https://developers.google.com/maps)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+
+</div>
+
+<div align="center">
+
+## ❓ FAQ
+
+</div>
 
 **Q: Can I use this code in my project?**
 A: Yes! Feel free to use this code as inspiration for your own implementation.
@@ -83,7 +125,11 @@ A: Any backend that can store data and handle API requests will work. This demo 
 **Q: How does the geolocation work?**
 A: The demo uses IP geolocation. You can implement this using services like MaxMind, ipapi.co, or similar services.
 
-## Inspiration 💡
+<div align="center">
+
+## 💡 Inspiration
+
+</div>
 
 This project demonstrates how to:
 - Create a modern, responsive UI
@@ -94,7 +140,11 @@ This project demonstrates how to:
 
 Use it as a starting point to build your own unique URL shortener!
 
-## License 📄
+<div align="center">
+
+## 📄 License
+
+</div>
 
 This project is licensed under the MIT License - see below for details:
 

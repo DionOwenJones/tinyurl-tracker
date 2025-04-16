@@ -10,11 +10,11 @@
 
 Create short links and watch your content spread across the globe in real-time with an interactive heatmap.
 
-[<img src="https://img.shields.io/badge/Try_Demo-000?style=for-the-badge&logo=vercel&logoColor=white"](https://tinyurl-tracker.vercel.app/)
+[![Try Demo](https://img.shields.io/badge/Try_Demo-000?style=for-the-badge&logo=vercel&logoColor=white)](https://tinyurl-tracker.vercel.app/)
 
 </div>
 
-**[Try the Live Demo](https://tinyurl-tracker.vercel.app/)**
+
 
 ![TinyTrack Screenshot](screenshot.png)
 

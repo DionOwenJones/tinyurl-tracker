@@ -56,7 +56,65 @@ Create short links and watch your content spread across the globe in real-time w
 <details>
 <summary>Click to expand</summary>
 
-Want to build your own URL shortener? Here's what you'll need:
+### Quick Start Guide
+
+Want to use this code? Here's how to get started:
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/DionOwenJones/tinyurl-tracker.git
+   cd tinyurl-tracker
+   ```
+
+2. **Set Up Supabase**
+   - Create a free account at [Supabase](https://supabase.com)
+   - Create a new project
+   - Go to SQL Editor
+   - Copy and paste the schema from `supabase/schema.sql`
+   - Execute the SQL to create your tables
+   - Go to Project Settings > API to get your:
+     - Project URL
+     - Anon Public Key
+
+3. **Set Up Google Maps**
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project
+   - Enable Maps JavaScript API
+   - Create API credentials
+   - Restrict the API key to your domain
+
+4. **Configure Environment**
+   Create a `.env` file:
+   ```env
+   SUPABASE_URL=your_project_url
+   SUPABASE_ANON_KEY=your_anon_key
+   GOOGLE_MAPS_API_KEY=your_maps_key
+   ```
+
+5. **Customize the Code**
+   - `index.html`: Change title, description, and branding
+   - `style.css`: Update colors and styling
+   - `script.js`: Modify tracking parameters if needed
+
+6. **Deploy**
+   - Create a [Vercel](https://vercel.com) account
+   - Install Vercel CLI: `npm i -g vercel`
+   - Deploy: `vercel`
+   - Add your environment variables in Vercel's project settings
+
+### Security Notes
+- Always restrict your API keys to your domain
+- Set up proper CORS policies in Supabase
+- Consider rate limiting for production use
+
+### What's Included
+- `index.html`: Main application interface
+- `style.css`: Modern, responsive styling
+- `script.js`: Core functionality
+- `supabase/schema.sql`: Database structure
+
+### Want to Build Your Own?
+Here's what you'll need:
 
 ### Frontend
 - HTML, CSS, and JavaScript

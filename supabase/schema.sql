@@ -1,3 +1,26 @@
+-- Create the URLs table
+CREATE TABLE IF NOT EXISTS urls (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    original_url TEXT NOT NULL,
+    short_code TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- Create the clicks table
+CREATE TABLE IF NOT EXISTS clicks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    short_code TEXT NOT NULL REFERENCES urls(short_code),
+    ip_address TEXT,
+    user_agent TEXT,
+    referrer TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    clicked_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    city TEXT,
+    country TEXT
+);
+
 -- Add new columns to clicks table if they don't exist
 DO $$ 
 BEGIN
